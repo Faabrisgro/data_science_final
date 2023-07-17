@@ -36,7 +36,7 @@ The dataset used in this project can be found at [Moro et al., 2014] S. Moro, P.
 In this section, I formulate hypotheses related to the data. These hypotheses will be investigated and tested using statistical methods.
 
 ## Statistical Analysis
-To evaluate the hypotheses, I employ various statistical methods such as t-tests, chi-square tests, ANOVA, correlation analysis, etc. The findings will be discussed in [Results](#results).
+To evaluate the hypotheses, I employ various statistical methods, mostly hypotheses probing and probabilistic approaches. The findings will be discussed in [Results](#results).
 
 ## Data Cleaning and Wrangling
 Before conducting any analysis, I preprocess the data by handling missing values, and outliers, and performing necessary data transformations.
@@ -51,7 +51,11 @@ I engineer new features based on domain knowledge and insights gained from explo
 I split the dataset into training and testing sets, and then proceed to train various machine-learning models. The models will be evaluated using appropriate metrics, and their performance will be compared.
 
 ## Results
-The results of the project will be summarized in this section. I will provide insights obtained from the statistical analysis and discuss the performance of the machine learning models.
+Based on the analysis, I confidently discovered two significant findings:
+
+1. **Determining the Type of Client with High ROI:** Through statistical analysis and machine learning models, I identified the key characteristics of clients that are more likely to yield higher Return on Investment (ROI) in marketing campaigns. This insight can help marketing teams target specific segments of clients to optimize campaign outcomes.
+
+2. **Principal Features for Deposit Prediction:** By analyzing and interpreting feature importance from the trained machine learning models, I identified the principal features that significantly influence whether a consumer will make a deposit or not. Understanding these features can aid in focusing marketing efforts on potential customers more likely to make a deposit.
 
 ## Usage
 To run the code in this repository, clone the repository and execute the Jupyter Notebook or Python script to reproduce the analysis.
