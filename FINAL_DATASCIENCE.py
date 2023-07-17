@@ -52,7 +52,7 @@
 # ## 4. Adquisición de los datos:
 # ### 4.1 Importación de librerías indispensables.
 
-# In[288]:
+# In[2]:
 
 
 #Tratamiento de datos y lectura de datos
@@ -125,19 +125,19 @@ import os
 
 # > A través de MySQL nos conectamos a la base de datos
 
-# In[289]:
+# In[127]:
 
 
 load_dotenv() 
 
 
-# In[290]:
+# In[128]:
 
 
 password =  os.getenv('password')
 
 
-# In[291]:
+# In[129]:
 
 
 db = mysql.connector.connect( 
@@ -148,25 +148,25 @@ db = mysql.connector.connect(
     )
 
 
-# In[292]:
+# In[130]:
 
 
 cursor = db.cursor() #creamos el cursor
 
 
-# In[293]:
+# In[131]:
 
 
 cursor.execute('SELECT * FROM `bank_data`') #Hacemos una consulta SQL para obtener los datos
 
 
-# In[294]:
+# In[132]:
 
 
 datos = cursor.fetchall() #Obtenemos todos los datos
 
 
-# In[295]:
+# In[133]:
 
 
 columnas = [i[0] for i in cursor.description] #Se procesan las columnas de los datos
@@ -174,7 +174,7 @@ columnas = [i[0] for i in cursor.description] #Se procesan las columnas de los d
 df = pd.DataFrame(datos, columns=columnas)
 
 
-# In[296]:
+# In[134]:
 
 
 df #Este es el df que vamos a utilizar para Explorar los Datos, seleccionar variables y entrenar los modelos
@@ -182,25 +182,25 @@ df #Este es el df que vamos a utilizar para Explorar los Datos, seleccionar vari
 
 # ## 4.3 Análisis exploratorio de Datos
 
-# In[297]:
+# In[135]:
 
 
 df.info()
 
 
-# In[298]:
+# In[136]:
 
 
 df.isna().sum() #No tenemos NaN en la base de datos
 
 
-# In[299]:
+# In[137]:
 
 
 df.duplicated().sum() #No tenemos valores duplicados
 
 
-# In[300]:
+# In[138]:
 
 
 round(df.describe().T) #Resumen estadístico de variables númericas
@@ -222,13 +222,13 @@ round(df.describe().T) #Resumen estadístico de variables númericas
 
 # > Limpieza de datos para facilitar la visualización de datos
 
-# In[301]:
+# In[139]:
 
 
 df
 
 
-# In[302]:
+# In[140]:
 
 
 cursor.execute("UPDATE datascience_final.bank_data SET loan = CASE WHEN loan = 'no' THEN 0 WHEN loan = 'yes' THEN 1 ELSE loan END;")
@@ -242,7 +242,7 @@ columns = [desc[0] for desc in cursor.description]
 df = pd.DataFrame(result, columns=columns)
 
 
-# In[303]:
+# In[141]:
 
 
 cursor.execute("UPDATE datascience_final.bank_data SET `default` = CASE WHEN `default` = 'no' THEN 0 WHEN `default` = 'yes' THEN 1 ELSE `default` END;")
@@ -256,7 +256,7 @@ columns = [desc[0] for desc in cursor.description]
 df = pd.DataFrame(result, columns=columns)
 
 
-# In[304]:
+# In[142]:
 
 
 cursor.execute("UPDATE datascience_final.bank_data SET housing = CASE WHEN housing = 'no' THEN 0 WHEN housing = 'yes' THEN 1 ELSE housing END;")
@@ -270,7 +270,7 @@ columns = [desc[0] for desc in cursor.description]
 df = pd.DataFrame(result, columns=columns)
 
 
-# In[305]:
+# In[143]:
 
 
 df['y'] = df['y'].replace({'no': 0, 'yes': 1})
@@ -280,7 +280,7 @@ df.rename(columns={'y': 'p_fijo'}, inplace=True)
 df
 
 
-# In[306]:
+# In[144]:
 
 
 columnas = ['loan', 'housing', 'default']
@@ -305,15 +305,17 @@ plt.tight_layout()
 plt.show()
 
 
-# In[307]:
+# In[147]:
 
 
 grouped = df.groupby(['loan', 'housing', 'default']).sum(numeric_only = True)
 grouped
 
 
-# In[308]:
+# In[148]:
 
+
+plt.subplots(figsize=(5, 5))
 
 grouped_df = grouped.reset_index()
 
@@ -348,26 +350,26 @@ plt.show()
 # 
 # - Hay mayor probabilidad de que una persona endeudada haga un depósito si es con hipotéca (housing) que si es con un préstamo personal (loan).
 
-# In[309]:
+# In[149]:
 
 
 grouped2 = df.groupby(['marital']).sum(numeric_only = True)
 grouped2
 
 
-# In[310]:
+# In[150]:
 
 
 px.bar(grouped2,x=grouped2.index, y=grouped2.p_fijo, color=grouped2.index, title="Cantidad de plazos fijos por tipo de estado civil", text_auto='.4')
 
 
-# In[311]:
+# In[151]:
 
 
 grouped2.p_fijo[1] / grouped2.p_fijo.sum() + grouped2.p_fijo[2] / grouped2.p_fijo.sum()
 
 
-# In[312]:
+# In[152]:
 
 
 grouped3 = df.groupby(['marital', 'loan', 'housing']).sum(numeric_only = True)
@@ -375,7 +377,7 @@ grouped3.reset_index(inplace=True)
 grouped3
 
 
-# In[313]:
+# In[153]:
 
 
 fig, axs = plt.subplots(1, 2, figsize=(15, 5))
@@ -414,8 +416,10 @@ plt.show()
 # - Hipótesis 2: Aceptamos la hipótesis porque la probabilidad de depósitos entre personas casadas (52%) > personas solteras (36%).
 # 
 
-# In[314]:
+# In[154]:
 
+
+plt.subplots(figsize=(5, 5))
 
 jobs = df.groupby('job').sum()
 
@@ -427,7 +431,7 @@ plt.xticks(rotation=90)
 plt.show()
 
 
-# In[315]:
+# In[155]:
 
 
 jobs_debts = df.groupby(['job', 'loan', 'housing']).sum(numeric_only = True)
@@ -436,7 +440,7 @@ jobs_debts = jobs_debts.sort_values('p_fijo', ascending=False)
 jobs_debts.head()
 
 
-# In[316]:
+# In[156]:
 
 
 fig, axs = plt.subplots(1, 2, figsize=(15, 5))
@@ -465,7 +469,7 @@ ax.legend(handles, new_labels, title='¿Housing?')
 plt.show()
 
 
-# In[317]:
+# In[157]:
 
 
 jobs_grouped = df.groupby(['job']).sum(numeric_only = True).sort_values('p_fijo', ascending=False)
@@ -474,7 +478,7 @@ jobs_grouped['percentage_p_fijo'] = (jobs_grouped['p_fijo'] / total_p_fijo * 100
 jobs_grouped.head(6)
 
 
-# In[318]:
+# In[158]:
 
 
 round(jobs_grouped.percentage_p_fijo[0:4].sum())
@@ -490,15 +494,16 @@ round(jobs_grouped.percentage_p_fijo[0:4].sum())
 # - Quiero averiguar si esta diferencia se puede estar dando a un mayor balance o a una diferencia en el `nivel educativo`.
 # 
 
-# In[319]:
+# In[159]:
 
 
+plt.subplots(figsize=(5, 5))
 sns.barplot(data=jobs_grouped, x=jobs_grouped.index, y=jobs_grouped.balance).set(title='Cantidad de Balance por tipo de trabajo')
 plt.xticks(rotation=90)
 plt.show()
 
 
-# In[320]:
+# In[160]:
 
 
 job_academic = df.groupby(['education','job']).sum()
@@ -507,7 +512,7 @@ job_academic = job_academic.sort_values('p_fijo', ascending=False)
 job_academic.head(5)
 
 
-# In[321]:
+# In[161]:
 
 
 fig, axs = plt.subplots(1, 2, figsize=(15, 5))
@@ -551,16 +556,17 @@ plt.show()
 # 
 # Esto me da la pauta para comenzar a analizar `education` y ver si el grupo secundario es aquél con más probabilidades de hacer un depósito.
 
-# In[322]:
+# In[162]:
 
 
+plt.subplots(figsize=(5, 5))
 plt.bar(df.education.value_counts().index, df.education.value_counts().values);
 plt.title('Frecuencia de education')
 plt.xlabel('Tipo de educación')
 plt.ylabel('Cantidad de apariciones')
 
 
-# In[323]:
+# In[163]:
 
 
 ed_grouped = df.groupby(['education']).sum()
@@ -569,19 +575,23 @@ ed_grouped= ed_grouped.drop(3)
 ed_grouped.sort_values('p_fijo', ascending=False)
 
 
-# In[324]:
+# In[212]:
 
 
+plt.subplots(figsize=(5, 5))
 sns.barplot(x=ed_grouped.education,y=ed_grouped.p_fijo)
+plt.title("Cantidad de depósitos en plazo fijo por nivel académico")
+plt.xlabel("Nivel académico")
+plt.ylabel("Cantidad de plazos fijos")
 
 
-# In[325]:
+# In[215]:
 
 
 total = df.p_fijo.sum()
 secundario = ed_grouped.p_fijo[1]
 prob_sec = secundario / total
-prob_sec = prob_sec * 1003
+prob_sec = prob_sec * 100
 
 terciario = grouped.p_fijo[2]
 prob_ter = terciario / total
@@ -592,9 +602,10 @@ total_prob = prob_ter + prob_sec
 print('La probabilidad de depósito de una persona perteneciente al nivel académico secundario es del {:.2f}%. \nDel nivel terciario es del {:.2f}%, lo que significa que entre el nivel secundario y el nivel terciario tenemos un {:.2f}% de probabilidades de depósito'.format(prob_sec, prob_ter, total_prob))
 
 
-# In[326]:
+# In[166]:
 
 
+plt.subplots(figsize=(5, 5))
 # Calcular el total de depósitos por categoría de education
 total_deposits_por_categoria = df.groupby('education')['p_fijo'].sum()
 
@@ -622,7 +633,7 @@ plt.show()
 # ***En conclusión:***
 # - En una primera conclusión creo que usar las dos variables categóricas (`education` y `job`) para determinar la probabilidad de un depósito puede no ser muy precisa. Por lo que probaría utilizando aquella variable con menor cantidad de variables categóricas y ante un escenario de overfitting agregaría la columna de job a las features del modelo. Esto porque al agregar una columna más el modelo va a poder generalizar más, pero esto puede afectar el Recall.
 
-# In[327]:
+# In[167]:
 
 
 sns.displot(df.contact)
@@ -632,9 +643,10 @@ plt.ylabel('Cantidad de apariciones')
 plt.show()
 
 
-# In[328]:
+# In[168]:
 
 
+plt.subplots(figsize=(5, 5))
 contact_grouped= df.groupby(['contact']).sum()
 contact_grouped = contact_grouped.reset_index()
 sns.barplot(x='contact', y='p_fijo', data=contact_grouped).set(title='Cantida de depósitos por tipo de contacto')
@@ -647,21 +659,23 @@ plt.show()
 # 
 # - Esta variable puede afectar de manera muy positiva al algoritmo de una manera muy negativa, por lo que es a probar e iterar en los modelos. 
 
-# In[329]:
+# In[169]:
 
 
+plt.subplots(figsize=(5, 5))
 sns.distplot(df.day).set(title='Distribución de la frecuencia de día')
 plt.show()
 
 
-# In[330]:
+# In[170]:
 
 
+plt.subplots(figsize=(5, 5))
 sns.boxplot(df.day).set(title='Distribución percentil de día', xlabel='Boxplot para "day"', ylabel='N° de Día')
 plt.show()
 
 
-# In[331]:
+# In[171]:
 
 
 from scipy.stats import kurtosis, skew
@@ -681,13 +695,13 @@ print("Curtosis:", curtosis_valor)
 # 
 # - Curtosis: La curtosis es negativa (-1.0599), lo que sugiere que la distribución es menos puntiaguda (aplanada) que una distribución normal. Esto significa que la distribución tiene colas más cortas y es menos pronunciada en el centro en comparación con una distribución normal.
 
-# In[332]:
+# In[172]:
 
 
 df.day.describe()
 
 
-# In[333]:
+# In[173]:
 
 
 day_grouped= df.groupby(['day']).sum()
@@ -696,15 +710,16 @@ day_grouped = day_grouped.sort_values('p_fijo', ascending=False)
 day_grouped.head()
 
 
-# In[334]:
+# In[174]:
 
 
+plt.subplots(figsize=(5, 5))
 sns.barplot(x=day_grouped.day, y=day_grouped.p_fijo).set(title='Cantidad de depósitos por día', xlabel='N° de día', ylabel='Cantidad de depósitos')
 plt.xticks(rotation=90)
 plt.show()
 
 
-# In[335]:
+# In[175]:
 
 
 # Calcula la correlación de punto biserial
@@ -715,12 +730,12 @@ print(f"Correlación de punto biserial: {correlation}")
 print(f"Valor p: {p_value}")
 
 
-# In[336]:
+# In[177]:
 
 
 correlation_matrix = df.corr(method='spearman')
 
-plt.figure(figsize=(8, 6))  # Ajusta el tamaño de la figura si es necesario
+plt.figure(figsize=(8, 5))  # Ajusta el tamaño de la figura si es necesario
 sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt=".2f")
 plt.title("Matriz de Correlación (Spearman)")
 plt.show()
@@ -739,7 +754,7 @@ plt.show()
 # 
 # - Podría ser una variable útil a usar si necesitamos que el modelo de predicción generalice. No la descarto, pero de primeras no le veo mucha utilidad.
 
-# In[337]:
+# In[178]:
 
 
 df2 = df.copy()
@@ -768,7 +783,7 @@ month_grouped['date'] = month_grouped['date'].dt.strftime('%B')
 month_grouped.head(3)
 
 
-# In[338]:
+# In[179]:
 
 
 sns.displot(df.month)
@@ -778,9 +793,10 @@ plt.ylabel('Cantidad de apariciones')
 plt.show()
 
 
-# In[339]:
+# In[180]:
 
 
+plt.subplots(figsize=(5, 5))
 sns.barplot(x=month_grouped.date,y=month_grouped.p_fijo).set(title='Cantidad de depósitos por mes', xlabel='Meses del año', ylabel='Cantidad de depósitos')
 plt.xticks(rotation=90);
 
@@ -799,7 +815,7 @@ plt.xticks(rotation=90);
 
 # > Comparándo los depósitos de portugal con los depósitos en Argentina 
 
-# In[340]:
+# In[181]:
 
 
 url = "https://api.estadisticasbcra.com/plazo_fijo" #Datos sobre depósitos de plazos fijos en Argentina desde 1996 hasta la actualidad
@@ -807,7 +823,7 @@ headers = {os.getenv('header1') : os.getenv('header2')}
 r = requests.get(url, headers=headers)
 
 
-# In[341]:
+# In[182]:
 
 
 r.text;
@@ -818,7 +834,7 @@ df_bcra=pd.DataFrame(json_bcra)
 df_bcra.info() #Para ver qué tipo de datos tenemos
 
 
-# In[342]:
+# In[183]:
 
 
 df_bcra.rename(columns={'d' : 'fecha','v': 'p_fijo'}, inplace = True) #Transformamos nombres de columnas
@@ -826,19 +842,19 @@ df_bcra['fecha'] =  pd.to_datetime(df_bcra['fecha'], format='%Y-%m-%d') #Transfo
 df_bcra.info() 
 
 
-# In[343]:
+# In[184]:
 
 
 df_bcra.head(3)
 
 
-# In[344]:
+# In[185]:
 
 
 df_bcra['year'] = df_bcra['fecha'].dt.to_period('Y') #Creamos una columna de año
 
 
-# In[345]:
+# In[186]:
 
 
 grouped_bcra= df_bcra.groupby('year').first()
@@ -846,7 +862,7 @@ grouped_bcra.reset_index(inplace= True)
 grouped_bcra.head(3) #Agrupamos por año
 
 
-# In[346]:
+# In[187]:
 
 
 df_bcra.year= df_bcra.year.astype(str)
@@ -854,7 +870,7 @@ grouped_bcra.p_fijo = grouped_bcra.p_fijo.astype(int)
 grouped_bcra.year= grouped_bcra.year.astype(str)
 
 
-# In[347]:
+# In[188]:
 
 
 fig, ax = plt.subplots(figsize=(6,4)) # Visualizamos los datos para ver que composición tienen
@@ -876,14 +892,14 @@ plt.xticks(rotation=90);
 # ***Comentarios:***
 # - Vemos que a lo largo de los años los depósitos en argentino fueron mayormente en aumento.
 
-# In[348]:
+# In[189]:
 
 
 df_bcra["month"] = pd.DatetimeIndex(df_bcra["fecha"]).strftime("%b").str.lower() #Procesemos la información por meses para comparar
 df_bcra
 
 
-# In[349]:
+# In[190]:
 
 
 month_to_number = {
@@ -912,21 +928,21 @@ bcra_month_grouped #Agrupado por meses y por cantidad de plazos fijos por mes
 
 # > Normalizamos para comparar las dos muestras
 
-# In[350]:
+# In[191]:
 
 
 bcra_month_grouped['valor_normalizado'] = ((bcra_month_grouped.p_fijo - bcra_month_grouped.p_fijo.min())/ (bcra_month_grouped.p_fijo.max()-bcra_month_grouped.p_fijo.min())) 
 bcra_month_grouped
 
 
-# In[351]:
+# In[192]:
 
 
 month_grouped['valor_normalizado'] = ((month_grouped.p_fijo - month_grouped.p_fijo.min())/ (month_grouped.p_fijo.max()-month_grouped.p_fijo.min()))
 month_grouped
 
 
-# In[352]:
+# In[193]:
 
 
 # Crear trazas de línea
@@ -956,16 +972,15 @@ fig.show()
 # ***Conclusiones:***
 # - Al comparar la información de este dataframe con el de un país del hemisferio contrario, como es Argentina, podemos intentar ver patrones o descartarlos. Sin duda en ambos países los meses de `Mayo` y `Junio` son meses con alta probabilidad de generar depósitos (`Mayo` para Portugal y `Junio` para la Argentina)
 
-# In[353]:
+# In[194]:
 
 
 sns.displot(df.duration).set(title='Distribución de duration', xlabel='Duration', ylabel='Frecuencia')
-plt.show()
 
 
 # > Procesamos esta columna para mejor visualización
 
-# In[354]:
+# In[195]:
 
 
 duration_group= df.groupby(['duration']).sum()
@@ -974,13 +989,13 @@ duration_group= duration_group.sort_values('p_fijo',ascending=False)
 duration_group
 
 
-# In[355]:
+# In[196]:
 
 
 duration_group.duration.min() - duration_group.duration.max() #Tenemos un rango muy alto, vamos a tener que crear grupos para visualizar la data
 
 
-# In[356]:
+# In[197]:
 
 
 # Definimos los límites de los grupos, elegimos 1000 según la distribución para los grupos.
@@ -998,7 +1013,7 @@ duration_group
 
 # > Graficamos los grupos para ver la distribución de los grupos con respecto la cantidad de plazos fijos
 
-# In[357]:
+# In[198]:
 
 
 f, ax = plt.subplots(figsize=(5, 5))
@@ -1007,13 +1022,13 @@ plt.xticks(rotation=90)
 plt.show()
 
 
-# In[358]:
+# In[199]:
 
 
 duration_group.groupby(['group']).sum()
 
 
-# In[359]:
+# In[200]:
 
 
 # Calculamos la correlación de punto biserial
@@ -1034,14 +1049,14 @@ print(f"Valor p: {p_value}")
 # 
 # - Por eso, es muy importante que los equipos de telemarketing se tomen menos de 500 días de duración entre contacto y contacto para maximizar sus resultados.
 
-# In[360]:
+# In[201]:
 
 
 f, ax = plt.subplots(figsize=(5, 5))
 sns.distplot(df.age)
 
 
-# In[361]:
+# In[202]:
 
 
 age_grouped = df.groupby(['age', 'job', 'marital', 'education']).sum()
@@ -1049,7 +1064,7 @@ age_grouped = age_grouped.reset_index()
 age_grouped
 
 
-# In[362]:
+# In[203]:
 
 
 bins = [18, 24, 45, 66, 87, float('inf')]
@@ -1062,7 +1077,7 @@ age_grouped['grupo_edad'] = pd.cut(age_grouped['age'], bins=bins, labels=labels,
 age_grouped
 
 
-# In[363]:
+# In[204]:
 
 
 sns.set(style="whitegrid")
@@ -1107,7 +1122,7 @@ plt.show()
 # - Nos queda más claro el mejor  público objetivo: `Personas entre 24-44 años, solteras, con nivel terciario finalizado, que realicen trabajos de management, technician o blue-collar. Que no tengan ni loan, ni housing. Sería lo mejor contactarlas durante Mayo o Agosto y que entre contacto y contacto no pasen más de 500 días de duración.`
 # 
 
-# In[364]:
+# In[205]:
 
 
 campaing_grouped = df.groupby(['campaign']).sum()
@@ -1123,10 +1138,10 @@ previous_grouped = previous_grouped.sort_values('p_fijo',ascending=False)
 previous_grouped = previous_grouped.reset_index()
 
 
-# In[365]:
+# In[211]:
 
 
-f, axes = plt.subplots(1, 3, figsize=(12, 6))  # 1 fila, 2 columnas para dos gráficos de barras
+f, axes = plt.subplots(1, 3, figsize=(14, 5))  # 1 fila, 2 columnas para dos gráficos de barras
 
 # Gráfico 1: Cantidad de plazos fijos por tipo de campaña
 sns.barplot(data=campaing_grouped[0:5], x='campaign', y='p_fijo', ax=axes[0], ci=None)
@@ -1160,7 +1175,7 @@ plt.show()
 # ***En resumen:***
 # - Las campañas efectivas son aquellas en las que el cliente es contactado por primera vez y demuestra interés de hacer un depósito entre el primer y el segundo contacto. Luego es muy díficil que el cliente haga el depósito si lo seguimos contactando. Quizá esto pueda servirle al equipo de marketing para entender que se debe hacer el mejor esfuerzo por persuadir al cliente en el primer contacto. De no ser posible existe una segunda posibilidad. Pero a partir de allí será muy díficil obtener una respuesta positiva.
 
-# In[366]:
+# In[207]:
 
 
 balance_grouped = df.groupby(['balance']).sum()
@@ -1172,7 +1187,7 @@ sns.scatterplot(x='balance', y='p_fijo', hue='balance',data=balance_grouped)
 plt.show()
 
 
-# In[367]:
+# In[208]:
 
 
 # Convierte las variables categóricas en variables numéricas usando el coeficiente de correlación de punto biserial
@@ -1215,14 +1230,14 @@ plt.show()
 #     
 #     6. Redes Neuronales: Utilizaremos la biblioteca Keras, que es parte de TensorFlow 2. Keras es una API de alto nivel que facilita la construcción y entrenamiento de redes neuronales de forma rápida y sencilla.
 
-# In[368]:
+# In[82]:
 
 
 df_train = df.copy()
 df_train
 
 
-# In[369]:
+# In[83]:
 
 
 age_bins = [18, 25, 45, 66, 87, float('inf')]  
@@ -1232,7 +1247,7 @@ age_labels = [1, 2, 3, 4, 5]
 df_train['age_group'] = pd.cut(df_train['age'], bins=age_bins, labels=age_labels, right=False)
 
 
-# In[370]:
+# In[84]:
 
 
 def assign_label(row):
@@ -1257,14 +1272,14 @@ df_train['debt_status'] = df_train.apply(assign_label, axis=1)
 df_train.head(3)
 
 
-# In[371]:
+# In[85]:
 
 
 le = LabelEncoder() #Para poder tratar las variables categóricas
 sc = StandardScaler() #Para estandarizar variables continuas 
 
 
-# In[372]:
+# In[86]:
 
 
 df_train['education']= le.fit_transform(df_train['education'])
@@ -1275,14 +1290,14 @@ df_train['contact'] = le.fit_transform(df_train['contact'])
 df_train['month'] = le.fit_transform(df_train['month'])
 
 
-# In[373]:
+# In[87]:
 
 
 df_train['balance'] = sc.fit_transform(df_train['balance'].values.reshape(-1, 1))
 df_train['duration'] = sc.fit_transform(df_train['duration'].values.reshape(-1, 1))
 
 
-# In[374]:
+# In[88]:
 
 
 total = df.p_fijo.value_counts()[1] + df.p_fijo.value_counts()[0]
@@ -1295,7 +1310,7 @@ print('El porcentaje total de depósitos corresponde a {:.2%} y el porcentaje to
 
 # > Cargamos las variables y las dividimos en entrenamiento y en test 
 
-# In[375]:
+# In[89]:
 
 
 features= ['age_group', 'job', 'marital', 'education', 'balance', 'contact', 'day', 'month', 'campaign', 'pdays', 'previous', 'debt_status']
@@ -1309,7 +1324,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random
 
 # > Usamos Random Over Sampler para aumentar la minoría de variables en nuestra variable objetivo.
 
-# In[376]:
+# In[90]:
 
 
 features= ['age_group', 'job', 'marital', 'education', 'balance', 'contact', 'day', 'month', 'campaign', 'pdays', 'previous', 'debt_status']
@@ -1329,7 +1344,7 @@ print ("Distribution labels after resampling {}".format(Counter(y_train_res)))
 
 # > Creamos una función para comenzar el entrenamiento y visualización de rendimiento de los modelos
 
-# In[377]:
+# In[91]:
 
 
 def run_model(X_train_res, X_test, y_train_res, y_test):
@@ -1348,7 +1363,7 @@ def mostrar_resultados(y_test, pred_y):
     print (classification_report(y_test, pred_y))
 
 
-# In[378]:
+# In[92]:
 
 
 model = run_model(X_train_res, X_test, y_train_res, y_test)
@@ -1356,7 +1371,7 @@ pred_y = model.predict(X_test)
 mostrar_resultados(y_test, pred_y)
 
 
-# In[379]:
+# In[93]:
 
 
 lr_y_pred = model.predict(X_test)
@@ -1388,7 +1403,7 @@ metricas2_df
 
 # > Probramos con DecisionTreeClassifier
 
-# In[380]:
+# In[94]:
 
 
 def run_model(X_train_res, X_test, y_train_res, y_test):
@@ -1397,7 +1412,7 @@ def run_model(X_train_res, X_test, y_train_res, y_test):
     return dtc
 
 
-# In[381]:
+# In[95]:
 
 
 model = DecisionTreeClassifier(random_state=42)
@@ -1424,7 +1439,7 @@ print(f"Best Model: {best_model}")
 print(f"Best Cross-Validated Recall Score: {best_recall}")
 
 
-# In[382]:
+# In[96]:
 
 
 def run_model(X_train_res, X_test, y_train_res, y_test):
@@ -1433,7 +1448,7 @@ def run_model(X_train_res, X_test, y_train_res, y_test):
     return dtc
 
 
-# In[383]:
+# In[97]:
 
 
 model = run_model(X_train_res, X_test, y_train_res, y_test)
@@ -1441,7 +1456,7 @@ pred_y = model.predict(X_test)
 mostrar_resultados(y_test, pred_y)
 
 
-# In[384]:
+# In[98]:
 
 
 print('Training Score:', model.score(X_train_res, y_train_res))
@@ -1452,7 +1467,7 @@ print('Test Score:', model.score(X_test, y_test))
 # 
 # - Podemos ver que al modelo le fue ligeramente mejor en el dataset de test
 
-# In[385]:
+# In[99]:
 
 
 dtc = dtc = DecisionTreeClassifier(ccp_alpha=0.000074 , class_weight='balanced', min_samples_leaf=1, max_leaf_nodes=None)
@@ -1489,7 +1504,7 @@ metricas2_df
 
 # Obtuvimos buen recall, pero estamos por debajo del 95%. Vamos a probar con Random Forest Classifier
 
-# In[386]:
+# In[100]:
 
 
 def run_model(X_train_res, X_test, y_train_res, y_test):
@@ -1498,7 +1513,7 @@ def run_model(X_train_res, X_test, y_train_res, y_test):
     return rfc
 
 
-# In[387]:
+# In[101]:
 
 
 def run_model(X_train_res, X_test, y_train_res, y_test, n_folds=5):
@@ -1523,21 +1538,21 @@ def run_model(X_train_res, X_test, y_train_res, y_test, n_folds=5):
 model = run_model(X_train_res, X_test, y_train_res, y_test)
 
 
-# In[388]:
+# In[102]:
 
 
 pred_y = model.predict(X_test)
 mostrar_resultados(y_test, pred_y)
 
 
-# In[389]:
+# In[103]:
 
 
 print('Training Score:', model.score(X_train_res, y_train_res))
 print('Test Score:', model.score(X_test, y_test))
 
 
-# In[390]:
+# In[104]:
 
 
 rfc = RandomForestClassifier(ccp_alpha=0.005, criterion='entropy', class_weight='balanced',min_samples_leaf=4 ,max_leaf_nodes=18,max_depth=100, random_state=42)
@@ -1574,7 +1589,7 @@ metricas2_df
 
 # Con Random Forest no nos fue tan bien, sigamos con Gradient Boosting Classifier
 
-# In[391]:
+# In[105]:
 
 
 def run_model(X_train_res, X_test, y_train_res, y_test, n_folds=5):
@@ -1596,21 +1611,21 @@ def run_model(X_train_res, X_test, y_train_res, y_test, n_folds=5):
 model = run_model(X_train_res, X_test, y_train_res, y_test)
 
 
-# In[392]:
+# In[106]:
 
 
 pred_y = model.predict(X_test)
 mostrar_resultados(y_test, pred_y)
 
 
-# In[393]:
+# In[107]:
 
 
 print('Training Score:', model.score(X_train_res, y_train_res))
 print('Test Score:', model.score(X_test, y_test))
 
 
-# In[394]:
+# In[108]:
 
 
 gbc = GradientBoostingClassifier(loss='exponential', learning_rate=0.5, n_estimators=120, max_depth=12, random_state=42)
@@ -1647,7 +1662,7 @@ metricas2_df
 
 # Con Gradient Boosting Obtuvimos buenos resultados, a su vez, recibió un mejor puntaje en test.
 
-# In[395]:
+# In[109]:
 
 
 import tensorflow as tf
@@ -1655,7 +1670,7 @@ from tensorflow import keras
 from sklearn.model_selection import StratifiedKFold
 
 
-# In[396]:
+# In[110]:
 
 
 def create_model(input_shape):
@@ -1668,7 +1683,7 @@ def create_model(input_shape):
     return model
 
 
-# In[397]:
+# In[111]:
 
 
 def run_keras_model(X_train_res, X_test, y_train_res, y_test):
@@ -1718,7 +1733,7 @@ metricas2_df = metricas2_df.append(metricas_nuevas, ignore_index=True)
 metricas2_df
 
 
-# In[398]:
+# In[112]:
 
 
 from sklearn.ensemble import VotingClassifier
@@ -1772,27 +1787,27 @@ metricas2_df = metricas2_df.append(nuevas_metricas, ignore_index=True)
 metricas2_df
 
 
-# In[399]:
+# In[113]:
 
 
 print('Training Score:', ensemble_model.score(X_train_res, y_train_res))
 print('Test Score:', ensemble_model.score(X_test, y_test))
 
 
-# In[408]:
+# In[114]:
 
 
 lr = LogisticRegression(penalty='l2', C=1, solver='lbfgs',random_state=42)
 lr =  lr.fit(X_train_res, y_train_res)
 
 
-# In[415]:
+# In[115]:
 
 
 models= [lr,dtc, rfc, gbc]
 
 
-# In[416]:
+# In[116]:
 
 
 from sklearn.metrics import roc_curve, auc
@@ -1815,7 +1830,7 @@ def plot_roc_curves(models, X, y): #Toma los modelos ya fiteados
     plt.show()
 
 
-# In[417]:
+# In[117]:
 
 
 plot_roc_curves(models,X_test,y_test)
