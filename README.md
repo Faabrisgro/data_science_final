@@ -54,7 +54,7 @@ I split the dataset into training and testing sets, and then proceed to train va
 The results of the project will be summarized in this section. I will provide insights obtained from the statistical analysis and discuss the performance of the machine learning models.
 
 ## Usage
-To run the code in this repository, you will need [list any specific software or libraries required]. Clone the repository and execute the Jupyter Notebook or Python script to reproduce the analysis.
+To run the code in this repository, clone the repository and execute the Jupyter Notebook or Python script to reproduce the analysis.
 
 ## License
 This project is licensed under the General License v3. Feel free to fork and use the code following the terms of the license.
